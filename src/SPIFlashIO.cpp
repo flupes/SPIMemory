@@ -554,6 +554,8 @@
      if (_checkForSFDP()) {
        _getSFDPFlashParam();
      }
+    #else
+      _pageSize = 256;
     #endif
      //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ End SFDP ID section ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 

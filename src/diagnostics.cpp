@@ -26,6 +26,11 @@
 
 #include "diagnostics.h"
 
+#if defined(ARDUINO_SAMD_ZERO) && defined(SERIAL_PORT_USBVIRTUAL)
+// Required for Serial on Zero based boards
+#define Serial SERIAL_PORT_USBVIRTUAL
+#endif
+
 //Subfunctions for troubleshooting function
 void Diagnostics::_printErrorCode(void) {
   Serial.print("Error code: 0x");
