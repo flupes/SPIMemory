@@ -80,7 +80,6 @@
 
  // Checks to see if the block of memory has been previously written to
  bool SPIFlash::_notPrevWritten(uint32_t _addr, uint32_t size) {
-   uint8_t _dat;
    _beginSPI(READDATA);
    for (uint32_t i = 0; i < size; i++) {
      if (_nextByte(READ) != 0xFF) {
@@ -260,7 +259,9 @@
 
  //Reads/Writes next data buffer. Should be called after _beginSPI()
  void SPIFlash::_nextBuf(uint8_t opcode, uint8_t *data_buffer, uint32_t size) {
+   #if !defined(ARDUINO_ARCH_SAM) && !defined(ARDUINO_ARCH_SAMD) && !defined(ARDUINO_ARCH_AVR)
    uint8_t *_dataAddr = &(*data_buffer);
+   #endif
    switch (opcode) {
      case READDATA:
      #if defined (ARDUINO_ARCH_SAM)
@@ -596,8 +597,10 @@
        _troubleshoot(UNKNOWNCAP);
        return false;
      }
-
    }
+   return false; // Original code did not have a return here.
+   //  Not sure what the developer was... But this function does not
+   // return a bool at this, so I just added this to mute the warning...
  }
 
  //Troubleshooting function. Called when #ifdef RUNDIAGNOSTIC is uncommented at the top of this file.
