@@ -27,16 +27,22 @@
 
  #include "SPIFlash.h"
 
- //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
- //     Private functions used by read, write and erase operations     //
- //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
- // Creates bit mask from bit x to bit y
- unsigned SPIFlash::_createMask(unsigned x, unsigned y) {
-   unsigned r = 0;
-   for (unsigned i=x; i<=y; i++) {
-     r |= 1 << i;
-   }
-   return r;
+#ifdef RUNDIAGNOSTIC
+#if defined(ARDUINO_SAMD_ZERO) && defined(SERIAL_PORT_USBVIRTUAL)
+#define Serial SERIAL_PORT_USBVIRTUAL
+#endif
+#endif
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+//     Private functions used by read, write and erase operations     //
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Creates bit mask from bit x to bit y
+unsigned SPIFlash::_createMask(unsigned x, unsigned y) {
+  unsigned r = 0;
+  for (unsigned i = x; i <= y; i++) {
+    r |= 1 << i;
+  }
+  return r;
  }
 
  //Checks to see if page overflow is permitted and assists with determining next address to read/write.
@@ -478,9 +484,11 @@
 
  //Checks for presence of chip by requesting JEDEC ID
  bool SPIFlash::_getJedecId(void) {
+   Serial.println("_getJedecId --> !notBusy");
    if(!_notBusy()) {
      return false;
    }
+   Serial.println("_getJedecId --> _beginSPI");
    _beginSPI(JEDECID);
  	_chip.manufacturerID = _nextByte(READ);		// manufacturer id
  	_chip.memoryTypeID = _nextByte(READ);		// memory type
@@ -533,8 +541,9 @@
    chipErase.opcode = CHIPERASE;
    chipErase.time = kb64Erase.time * 100L;
 
+    Serial.println("_getJedecId()");
    _getJedecId();
-
+    Serial.println("completed getJedecId()");
    for (uint8_t i = 0; i < sizeof(_supportedManID); i++) {
      if (_chip.manufacturerID == _supportedManID[i]) {
        _chip.supportedMan = true;
@@ -598,6 +607,7 @@
        return false;
      }
    }
+    Serial.println("return chipID");
    return false; // Original code did not have a return here.
    //  Not sure what the developer was... But this function does not
    // return a bool at this, so I just added this to mute the warning...
