@@ -27,6 +27,12 @@
 
 #include "SPIFlash.h"
 
+#ifdef RUNDIAGNOSTIC
+#if defined(ARDUINO_SAMD_ZERO) && defined(SERIAL_PORT_USBVIRTUAL)
+#define Serial SERIAL_PORT_USBVIRTUAL
+#endif
+#endif
+
 // Constructor
 //If board has multiple SPI interfaces, this constructor lets the user choose between them
 // Adding Low level HAL API to initialize the Chip select pinMode on RTL8195A - @boseji <salearj@hotmail.com> 2nd March 2017
@@ -74,14 +80,19 @@ bool SPIFlash::begin(uint32_t flashChipSize) {
   Serial.println("Highspeed mode initiated.");
   Serial.println();
 #endif
+  Serial.println("BEGIN_SPI");
   BEGIN_SPI
 #ifdef SPI_HAS_TRANSACTION
   //Define the settings to be used by the SPI bus
+  Serial.println("SPISetttings");
   _settings = SPISettings(SPI_CLK, MSBFIRST, SPI_MODE0);
 #endif
+  Serial.println("_chipID");
   bool retVal = _chipID(flashChipSize);
+  Serial.println("_endSPI");
   _endSPI();
   chipPoweredDown = false;
+  Serial.println("SPIFlash::begin() return");
   return retVal;
 }
 

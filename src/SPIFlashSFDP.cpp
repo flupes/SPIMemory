@@ -26,6 +26,12 @@
  */
 
  #include "SPIFlash.h"
+
+#if defined(ARDUINO_SAMD_ZERO) && defined(SERIAL_PORT_USBVIRTUAL)
+// Required for Serial on Zero based boards
+#define Serial SERIAL_PORT_USBVIRTUAL
+#endif
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 //     Private Functions that retrieve date from the SFDP tables      //
 //              - if the flash chip supports SFDP                     //
@@ -115,7 +121,7 @@ bool SPIFlash::_checkForSFDP(void) {
   if (_getSFDPdword(SFDP_HEADER_ADDR, SFDP_SIGNATURE_DWORD) == SFDPSIGNATURE) {
     _chip.sfdpAvailable = true;
     #ifdef RUNDIAGNOSTIC
-    Serial.println("SFDP available");
+   Serial.println("SFDP available");
     #endif
   }
   else {
